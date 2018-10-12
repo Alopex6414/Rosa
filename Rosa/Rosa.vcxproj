@@ -127,12 +127,16 @@
     <ClInclude Include="CRosaSocket.h" />
     <ClInclude Include="CThreadSafe.h" />
     <ClInclude Include="CThreadSafeEx.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CRosaSerial.cpp" />
     <ClCompile Include="CRosaSocket.cpp" />
     <ClCompile Include="CThreadSafe.cpp" />
     <ClCompile Include="CThreadSafeEx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Rosa.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
