@@ -117,6 +117,8 @@ public:
 public:
 	unsigned char m_chSendBuf[SERIALPORT_COMM_INPUT_BUFFER_SIZE];
 	unsigned char m_chRecvBuf[SERIALPORT_COMM_OUTPUT_BUFFER_SIZE];
+	DWORD m_dwSendCount;
+	DWORD m_dwRecvCount;
 
 public:
 	void ROSASERIAL_CALLMODE EnumSerialPort();	// CRosaSerial 枚举串口
@@ -139,8 +141,8 @@ public:
 	bool ROSASERIAL_CALLMODE CRosaSerialGetRecv() const;			// CRosaSerial 获取接收标志
 	void ROSASERIAL_CALLMODE CRosaSerialSetRecv(bool bRecv);		// CRosaSerial 设置接收标志
 
-	void ROSASERIAL_CALLMODE CRosaSerialSetSendBuf(unsigned char* pBuff, int nSize);	// CRosaSerial 设置发送缓冲
-	void ROSASERIAL_CALLMODE CRosaSerialGetRecvBuf(unsigned char* pBuff, int nSize);	// CRosaSerial 获取接收缓冲
+	void ROSASERIAL_CALLMODE CRosaSerialSetSendBuf(unsigned char* pBuff, int nSize, DWORD& dwSendCount);	// CRosaSerial 设置发送缓冲
+	void ROSASERIAL_CALLMODE CRosaSerialGetRecvBuf(unsigned char* pBuff, int nSize, DWORD& dwRecvCount);	// CRosaSerial 获取接收缓冲
 
 	bool ROSASERIAL_CALLMODE CRosaSerialOpenPort(S_SERIALPORT_PROPERTY sCommProperty);	// CRosaSerial 打开串口
 	void ROSASERIAL_CALLMODE CRosaSerialClosePort();									// CRosaSerial 关闭串口

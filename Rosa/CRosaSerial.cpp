@@ -32,6 +32,8 @@ CRosaSerial::CRosaSerial()
 	memset(&m_ovRead, 0, sizeof(m_ovRead));
 	memset(&m_ovWait, 0, sizeof(m_ovWait));
 
+	m_dwSendCount = 0;
+	m_dwRecvCount = 0;
 	memset(m_chSendBuf, 0, sizeof(m_chSendBuf));
 	memset(m_chRecvBuf, 0, sizeof(m_chRecvBuf));
 
@@ -132,9 +134,10 @@ void ROSASERIAL_CALLMODE CRosaSerial::CRosaSerialSetRecv(bool bRecv)
 // @Para: int nSize(发送缓冲数组长度)
 // @Return: None
 //------------------------------------------------------------------
-void ROSASERIAL_CALLMODE CRosaSerial::CRosaSerialSetSendBuf(unsigned char * pBuff, int nSize)
+void ROSASERIAL_CALLMODE CRosaSerial::CRosaSerialSetSendBuf(unsigned char * pBuff, int nSize, DWORD& dwSendCount)
 {
 	EnterCriticalSection(&m_csCOMSync);
+	m_dwSendCount = dwSendCount;
 	memcpy_s(m_chSendBuf, sizeof(m_chSendBuf), pBuff, nSize);
 	LeaveCriticalSection(&m_csCOMSync);
 }
@@ -147,9 +150,10 @@ void ROSASERIAL_CALLMODE CRosaSerial::CRosaSerialSetSendBuf(unsigned char * pBuf
 // @Para: int nSize(接收缓冲数组长度)
 // @Return: None
 //------------------------------------------------------------------
-void ROSASERIAL_CALLMODE CRosaSerial::CRosaSerialGetRecvBuf(unsigned char * pBuff, int nSize)
+void ROSASERIAL_CALLMODE CRosaSerial::CRosaSerialGetRecvBuf(unsigned char * pBuff, int nSize, DWORD& dwRecvCount)
 {
 	EnterCriticalSection(&m_csCOMSync);
+	dwRecvCount = m_dwRecvCount;
 	memcpy_s(pBuff, nSize, m_chRecvBuf, sizeof(m_chRecvBuf));
 	LeaveCriticalSection(&m_csCOMSync);
 }
@@ -219,7 +223,7 @@ bool ROSASERIAL_CALLMODE CRosaSerial::OnTranslateBuffer()
 	memcpy_s(chSendBuf, sizeof(chSendBuf), m_chSendBuf, sizeof(m_chSendBuf));
 	LeaveCriticalSection(&m_csCOMSync);
 
-	bStatus = WriteFile(m_hCOM, chSendBuf, sizeof(chSendBuf), &dwBytes, &m_ovWrite);
+	bStatus = WriteFile(m_hCOM, chSendBuf, m_dwSendCount, &dwBytes, &m_ovWrite);
 	if (FALSE == bStatus && GetLastError() == ERROR_IO_PENDING)
 	{
 		if (FALSE == ::GetOverlappedResult(m_hCOM, &m_ovWrite, &dwBytes, TRUE))
@@ -279,6 +283,7 @@ unsigned int CRosaSerial::OnReceiveBuffer(LPVOID lpParameters)
 			PurgeComm(pCSerialPortBase->m_hCOM, PURGE_RXCLEAR | PURGE_RXABORT);
 
 			EnterCriticalSection(&pCSerialPortBase->m_csCOMSync);
+			pCSerialPortBase->m_dwRecvCount = dwBytes;
 			memset(pCSerialPortBase->m_chRecvBuf, 0, sizeof(pCSerialPortBase->m_chRecvBuf));
 			memcpy_s(pCSerialPortBase->m_chRecvBuf, sizeof(pCSerialPortBase->m_chRecvBuf), chReadBuf, sizeof(chReadBuf));
 			pCSerialPortBase->m_bRecv = true;
